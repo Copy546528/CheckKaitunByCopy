@@ -176,7 +176,7 @@
         }
 
         .user-image {
-            max-width: 100%; /* Important: Constrain to the parent's width */
+            max-width: 100%;
             max-height: 150px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -184,7 +184,7 @@
         }
 
         .item-table {
-            width: 100%; /* Important: Constrain to the parent's width */
+            width: 100%; 
             border-collapse: collapse;
             margin-top: 10px;
             font-size: 0.9em;
@@ -210,30 +210,30 @@
         .star-input-area {
             display: flex;
             flex-direction: column;
-            gap: 12px; /* Adjusted gap */
+            gap: 12px;
             align-items: center;
             padding: 10px;
             border-radius: var(--border-radius);
-            background-color: #fcfcfc; /* Very light background */
+            background-color: #fcfcfc;
         }
         .star-input-area button.star-button {
             width: 100%;
             padding: 14px;
-            background-color: var(--card-background); /* White button background */
+            background-color: var(--card-background);
             color: #333;
-            border: 1px solid #ffcc00; /* Light Gold border */
+            border: 1px solid #ffcc00; 
             border-radius: 8px;
             font-size: 1.1em;
             font-weight: 600;
             margin: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Soft shadow */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
         }
         .star-input-area button.star-button:hover {
-            background-color: #fff9e6; /* Very light gold on hover */
+            background-color: #fff9e6;
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            color: #856404; /* Darker text for contrast */
+            color: #856404;
         }
         .star-input-area button.star-button:active {
             background-color: #ffc107;
@@ -246,12 +246,11 @@
             padding: 10px 0;
         }
         .chart-bar {
-            /* Changed color to Gold for rating consistency */
             background-color: #ffc107; 
             transition: width 0.5s ease-out;
             border-radius: 4px;
         }
-        /* Other chart styles remain fine for coherence */
+        
         .chart-total-votes {
             text-align: center;
             font-size: 1.1em;
@@ -295,8 +294,6 @@
             overflow-y: auto;
             border: 1px solid #dee2e6;
         }
-
-        /* ... (styles for popups and counters remain the same) ... */
 
         .hidden {
             display: none;
@@ -448,27 +445,25 @@
     }
 
     function showSection(section) {
-        const sections = ['search', 'rating', 'admin'];
+        const sections = ['search', 'rating'];
         
-        // Hide all content sections
+        // Hide all non-admin content sections
         sections.forEach(s => {
             const sectionEl = document.getElementById(s + 'Section');
             if (sectionEl) {
-                // Admin Panel is handled separately for full hide/show
-                if (s === 'admin' && section !== 'admin') {
-                     // Do nothing, let the login function handle admin panel visibility
-                } else if (s !== 'admin') {
-                     sectionEl.classList.add('hidden');
-                }
+                 sectionEl.classList.add('hidden');
             }
         });
         
         // Handle admin panel display state based on who is logged in
-        if (users[document.getElementById('loginUser').value] === adminPass) {
+        const isAdmin = document.getElementById('loginUser').value === adminUser && document.getElementById('loginPass').value === adminPass;
+        const adminPanel = document.getElementById('adminPanel');
+
+        if (isAdmin) {
             if (section === 'admin') {
-                document.getElementById('adminPanel').classList.remove('hidden');
+                adminPanel.classList.remove('hidden');
             } else {
-                document.getElementById('adminPanel').classList.add('hidden');
+                adminPanel.classList.add('hidden');
             }
         }
         
@@ -893,5 +888,4 @@
     };
 </script>
 </body>
-
 </html>
