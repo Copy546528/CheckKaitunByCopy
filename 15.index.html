@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ระบบสมาชิก + แอดมิน</title>
+    <style>
+        /* *** NEW FONT IMPORT *** */
+        @import url('https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&display=swap');
+
+        /* Modern UI/UX Styling */
+        :root {
+            --primary-color: #007bff; /* Blue */
+            --primary-hover: #0056b3;
+            --success-color: #28a745; /* Green */
+            --danger-color: #dc3545; /* Red */
+            --background-color: #f4f7f6;
+            --card-background: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Mitr', sans-serif; /* Apply Mitr Font */
+            background: var(--background-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            margin: 20px auto;
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        h2, h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* *** Main Navigation Tabs *** */
+        .main-nav {
+            display: flex;
+            margin: -20px 0 20px 0;
+            border-bottom: 2px solid #ccc;
+        }
+        .main-nav button {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px 10px;
+            font-weight: 500;
+            color: #666;
+            border-radius: 0;
+            border-bottom: 3px solid transparent;
+            margin: 0;
+            transition: all 0.2s ease;
+        }
+        .main-nav button:hover {
+            color: #333;
+            background-color: #f0f0f0;
+        }
+        .main-nav button.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: bold;
+        }
+        
+        /* รวมสไตล์สำหรับ input และ textarea */
+        input[type="text"], input[type="password"], input[type="date"], input[type="file"], textarea {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: 'Mitr', sans-serif;
+            background: #ffffff;
+        }
+        
+        textarea {
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        /* Specific Button Styles */
+        #loginSection button {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+
+        #loginSection button:hover {
+            background: linear-gradient(45deg, #0056b3, #007bff);
+            transform: translateY(-1px);
+        }
+
+        #searchSection button, #adminPanel button:not(#userList button) {
+            background-color: var(--primary-color);
+        }
+        
+        #searchSection button:hover, #adminPanel button:not(#userList button):hover {
+            background-color: var(--primary-hover);
+        }
+        
+        /* Export/Import buttons */
+        #exportButton { background-color: #f0ad4e; margin: 8px 0; }
+        #exportButton:hover { background-color: #ec971f; }
+        #importButton { background-color: #5bc0de; margin: 8px 0; }
+        #importButton:hover { background-color: #31b0d5; }
+
+        /* Admin Panel Specific Styling */
+        #adminPanel {
+            padding-top: 20px;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+            margin: 25px 0;
+        }
+        
+        /* --- Search Results Styling (Constrained/Standard size is maintained) --- */
+        #searchResultsContainer {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .search-result-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* --- Styles for Image and Table (Ensures they stick to 100% width of the result box) --- */
+        .user-details {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .user-image-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .user-image {
+            max-width: 100%; /* Important: Constrain to the parent's width */
+            max-height: 150px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .item-table {
+            width: 100%; /* Important: Constrain to the parent's width */
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .item-table th, .item-table td {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .item-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .item-table td:nth-child(2) {
+            text-align: center;
+        }
+        /* -------------------------------------------------------- */
+
+        /* --- Rating Input Styles (New look, cohesive UI) --- */
+        .star-input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Adjusted gap */
+            align-items: center;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            background-color: #fcfcfc; /* Very light background */
+        }
+        .star-input-area button.star-button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--card-background); /* White button background */
+            color: #333;
+            border: 1px solid #ffcc00; /* Light Gold border */
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Soft shadow */
+            transition: all 0.2s;
+        }
+        .star-input-area button.star-button:hover {
+            background-color: #fff9e6; /* Very light gold on hover */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: #856404; /* Darker text for contrast */
+        }
+        .star-input-area button.star-button:active {
+            background-color: #ffc107;
+            transform: translateY(0);
+        }
+        /* --------------------------- */
+
+        /* --- Chart/Graph Styles --- */
+        #ratingChartContainer {
+            padding: 10px 0;
+        }
+        .chart-bar {
+            /* Changed color to Gold for rating consistency */
+            background-color: #ffc107; 
+            transition: width 0.5s ease-out;
+            border-radius: 4px;
+        }
+        /* Other chart styles remain fine for coherence */
+        .chart-total-votes {
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        .chart-bar-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        .star-label {
+            flex-basis: 70px; 
+            text-align: right;
+            padding-right: 5px;
+            font-weight: 600;
+        }
+        .bar-background {
+            flex-grow: 1;
+            height: 18px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .count-label {
+            flex-basis: 90px;
+            font-weight: 500;
+            text-align: left;
+            color: #333;
+        }
+        /* -------------------------- */
+        
+        .user-list {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+        }
+
+        /* ... (styles for popups and counters remain the same) ... */
+
+        .hidden {
+            display: none;
+        }
+        
+        /* STYLES for Success Pop-up */
+        .login-success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            opacity: 0;
+        }
+
+        .popup-content {
+            background: linear-gradient(135deg, #8effaf, #28a745);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            border: 3px solid #ffffff;
+        }
+
+        .login-success-popup.show {
+            opacity: 1;
+            animation: bounceIn 0.5s ease-out forwards; 
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        /* STYLES for Search Counter */
+        .counter-display {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #007bff;
+            border: 2px solid #b3d9ff;
+            transition: all 0.3s ease;
+        }
+
+        .counter-display.updated {
+            background-color: #fff3cd;
+            color: #856404;
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+    <div id="successMessage" class="login-success-popup hidden">
+        <div class="popup-content">
+            ✨ เข้าสู่ระบบสำเร็จ! ✨
+        </div>
+    </div>
+    <div class="container">
+        <div id="loginSection">
+            <h2>🔐 เข้าสู่ระบบ</h2>
+            <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้" />
+            <input type="password" id="loginPass" placeholder="รหัสผ่าน" />
+            <button onclick="login()">เข้าสู่ระบบ</button>
+        </div>
+        
+        <div id="mainNav" class="main-nav hidden">
+            <button id="navSearch" class="active" onclick="showSection('search')">🔍 ค้นหา Username</button>
+            <button id="navRating" onclick="showSection('rating')">⭐ ให้คะแนน (Review)</button>
+        </div>
+        <div id="searchSection" class="hidden">
+            <h2>🔍 ค้นหา Username</h2>
+            <textarea id="searchUser" rows="5" placeholder="ใส่ username ทีละบรรทัด (กด Enter เพื่อขึ้นบรรทัดใหม่)"></textarea>
+            <button onclick="search()">ค้นหา</button>
+            <div id="searchResultsContainer"></div>
+            
+            <p id="searchCounterDisplay" class="counter-display"></p>
+        </div>
+        
+        <div id="ratingSection" class="hidden">
+            <h2>⭐ ให้คะแนนความพึงพอใจ</h2>
+            <div id="starRatingInput" class="star-input-area">
+                </div>
+            
+            <hr>
+            
+            <h2>📊 ผลคะแนนรีวิว</h2>
+            <div id="ratingChartContainer">
+                </div>
+        </div>
+        <div id="adminPanel" class="hidden">
+            <hr>
+            <h2>➕ แอดมินเพิ่มผู้ใช้</h2>
+            <input type="text" id="newUser" placeholder="ตั้ง username" />
+            <input type="text" id="newPass" placeholder="ตั้งรหัสผ่าน" />
+            <button onclick="adminAddUser()">เพิ่มผู้ใช้ใหม่ (สำหรับเข้าสู่ระบบ)</button>
+
+            <h3>👥 รายชื่อผู้ใช้ทั้งหมด</h3>
+            <div id="userList" class="user-list"></div>
+
+            <hr>
+            <h2>📅 เพิ่ม/อัปเดตข้อมูลผู้ใช้ (หลายตัว)</h2>
+            <textarea id="targetUser" rows="5" placeholder="ใส่ username ทีละบรรทัด"></textarea>
+            <input type="text" id="customText" placeholder="ข้อความกำหนดเอง เช่น เหลือ" />
+            <label for="expireDate" style="display: block; margin-top: 10px; color: #555;">วันหมดอายุ (ใช้ค่าเดียวกันสำหรับทุก Username):</label>
+            <input type="date" id="expireDate" />
+            
+            <input type="text" id="imageUrl" placeholder="URL รูปภาพ (ตัวอย่าง: https://example.com/pic.jpg)" />
+            <textarea id="itemData" rows="3" placeholder="ข้อมูลของในตัว (รูปแบบ: ID1: Value1, ID2: Value2 หรือคั่นบรรทัดได้)"></textarea>
+            
+            <button onclick="addData()">เพิ่ม/อัปเดตข้อมูล</button>
+            
+            <hr>
+            <h2>💾 สำรอง/กู้คืนข้อมูล</h2>
+            <p style="font-size: 0.9em; text-align: center; color: #6c757d; margin-bottom: 10px;">เพื่อเก็บข้อมูลไว้ใช้ข้ามอุปกรณ์</p>
+            <button onclick="exportData()" id="exportButton">ดาวน์โหลดข้อมูล (Export)</button>
+            
+            <input type="file" id="importFile" accept=".json">
+            <button onclick="importData()" id="importButton">อัปโหลดและกู้คืน (Import)</button>
+        </div>
+    </div>
+
+<script>
+    const adminUser = "admin";
+    const adminPass = "9O*UMAR%D57a";
+
+    // ใช้ localStorage เพื่อเก็บข้อมูล
+    let users = JSON.parse(localStorage.getItem("users") || "{}");
+    let userData = JSON.parse(localStorage.getItem("userData") || "{}");
+    let searchCount = parseInt(localStorage.getItem("searchCount") || "0");
+    let ratingCounts = JSON.parse(localStorage.getItem("ratingCounts") || '{"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}');
+
+
+    function save() {
+        localStorage.setItem("users", JSON.stringify(users));
+        localStorage.setItem("userData", JSON.stringify(userData));
+        localStorage.setItem("searchCount", searchCount.toString()); 
+        localStorage.setItem("ratingCounts", JSON.stringify(ratingCounts));
+        renderUserList(); 
+    }
+
+    function showSection(section) {
+        const sections = ['search', 'rating', 'admin'];
+        
+        // Hide all content sections
+        sections.forEach(s => {
+            const sectionEl = document.getElementById(s + 'Section');
+            if (sectionEl) {
+                // Admin Panel is handled separately for full hide/show
+                if (s === 'admin' && section !== 'admin') {
+                     // Do nothing, let the login function handle admin panel visibility
+                } else if (s !== 'admin') {
+                     sectionEl.classList.add('hidden');
+                }
+            }
+        });
+        
+        // Handle admin panel display state based on who is logged in
+        if (users[document.getElementById('loginUser').value] === adminPass) {
+            if (section === 'admin') {
+                document.getElementById('adminPanel').classList.remove('hidden');
+            } else {
+                document.getElementById('adminPanel').classList.add('hidden');
+            }
+        }
+        
+        // Set active navigation button
+        const navButtons = document.querySelectorAll('.main-nav button');
+        navButtons.forEach(btn => btn.classList.remove('active'));
+        
+        const navButton = document.getElementById('nav' + section.charAt(0).toUpperCase() + section.slice(1));
+        if (navButton) {
+             navButton.classList.add('active');
+        }
+
+        // Show the selected non-admin section
+        const targetSection = document.getElementById(section + 'Section');
+        if (targetSection) {
+            targetSection.classList.remove('hidden');
+        }
+
+        // Re-render the chart when entering the rating section
+        if (section === 'rating') {
+            renderRatingChart();
+        }
+    }
+    
+    function updateSearchCounterDisplay() {
+        const displayElement = document.getElementById('searchCounterDisplay');
+        if (displayElement) {
+            displayElement.innerText = `ค้นหาไปแล้ว ${searchCount} ครั้ง`;
+            localStorage.setItem("searchCount", searchCount.toString());
+            
+            displayElement.classList.remove('updated');
+            void displayElement.offsetWidth;
+            displayElement.classList.add('updated');
+            setTimeout(() => {
+                displayElement.classList.remove('updated');
+            }, 500);
+        }
+    }
+
+    function showSuccessMessage(callback) {
+        const successMsg = document.getElementById('successMessage');
+        successMsg.classList.remove('hidden');
+        successMsg.classList.remove('show');
+        void successMsg.offsetWidth;
+        successMsg.classList.add('show');
+
+        setTimeout(() => {
+            successMsg.classList.remove('show');
+            setTimeout(() => {
+                successMsg.classList.add('hidden');
+                if (callback) callback();
+            }, 500);
+        }, 2000);
+    }
+
+    function login() {
+        let u = document.getElementById('loginUser').value;
+        let p = document.getElementById('loginPass').value;
+        let loginSection = document.getElementById('loginSection');
+        let searchSection = document.getElementById('searchSection');
+        let adminPanel = document.getElementById('adminPanel');
+        let mainNav = document.getElementById('mainNav');
+
+        if(u === adminUser && p === adminPass) {
+            showSuccessMessage(() => {
+                loginSection.classList.add('hidden');
+                mainNav.classList.remove('hidden'); 
+                searchSection.classList.remove('hidden'); 
+                adminPanel.classList.remove('hidden'); // Admin sees panel by default
+                renderUserList();
+            });
+            return;
+        }
+
+        if(users[u] && users[u] !== "" && users[u] === p) {
+            showSuccessMessage(() => {
+                loginSection.classList.add('hidden');
+                mainNav.classList.remove('hidden'); 
+                searchSection.classList.remove('hidden'); 
+                adminPanel.classList.add('hidden'); // Regular user hides panel
+            });
+        } else {
+            alert("ข้อมูลไม่ถูกต้อง");
+        }
+    }
+
+    function adminAddUser() {
+        let u = document.getElementById('newUser').value;
+        let p = document.getElementById('newPass').value;
+
+        if(!u || !p) return alert("กรอกข้อมูลให้ครบ");
+        if(users[u] && users[u] !== "") return alert("มีผู้ใช้นี้อยู่แล้ว"); 
+
+        users[u] = p;
+        save();
+        alert("เพิ่มผู้ใช้สำเร็จ");
+        document.getElementById('newUser').value = '';
+        document.getElementById('newPass').value = '';
+    }
+
+    function deleteUser(username) {
+        if(confirm("ลบผู้ใช้ " + username + " ?")){
+            delete users[username];
+            delete userData[username];
+            save();
+        }
+    }
+
+    function renderUserList() {
+        let list = document.getElementById("userList");
+        list.innerHTML = "";
+        const userKeys = Object.keys(users).filter(u => u !== adminUser);
+        
+        if (userKeys.length === 0) {
+            list.innerHTML = `<p style="text-align: center; color: #6c757d; margin: 0;">ยังไม่มีผู้ใช้งาน</p>`;
+            return;
+        }
+        
+        userKeys.forEach(u => {
+            let row = document.createElement("div");
+            row.className = "user-item";
+            
+            const hasPassword = users[u] && users[u] !== ""; 
+            const statusText = hasPassword ? '✅ มีรหัสผ่าน' : '⚠️ ไม่มีรหัสผ่าน';
+            const statusColor = hasPassword ? '#155724' : '#856404'; 
+            
+            row.innerHTML = `
+                <span>
+                    ${u} 
+                    <small style="color:${statusColor}; font-weight:normal; font-size: 0.8em; margin-left:5px;">(${statusText})</small>
+                </span>
+                <button onclick="deleteUser('${u}')">ลบ</button>`;
+            list.appendChild(row);
+        });
+    }
+
+    function addData() {
+        let targetUserInput = document.getElementById('targetUser').value.trim();
+        let customText = document.getElementById('customText').value.trim();
+        let expireDate = document.getElementById('expireDate').value;
+        let imageUrl = document.getElementById('imageUrl').value.trim();
+        let itemData = document.getElementById('itemData').value.trim();
+
+        let usernames = targetUserInput.split('\n')
+                                        .map(u => u.trim())
+                                        .filter(u => u.length > 0);
+        
+        if (usernames.length === 0) {
+            return alert("กรุณาใส่ username อย่างน้อย 1 บรรทัด");
+        }
+
+        if (!customText || !expireDate) {
+            return alert("กรุณาใส่ข้อความและวันหมดอายุ");
+        }
+
+        let addedCount = 0;
+        
+        usernames.forEach(u => {
+            if (!users[u]) {
+                users[u] = "";
+            }
+
+            userData[u] = { 
+                text: customText, 
+                expire: expireDate,
+                image: imageUrl, 
+                items: itemData
+            };
+            addedCount++;
+        });
+
+        if (addedCount > 0) {
+            save();
+            alert(`บันทึกข้อมูลสำเร็จ สำหรับ ${addedCount} Username และเพิ่มในรายชื่อแล้ว`);
+            document.getElementById('targetUser').value = '';
+        } else {
+            alert("ไม่สามารถบันทึกข้อมูลได้ กรุณาตรวจสอบ Username ที่ใส่");
+        }
+    }
+
+
+    function getSearchResult(u) {
+        if (!userData[u]) {
+            return { message: "ไม่พบข้อมูล/ยังไม่ได้ตั้งค่า", bgColor: '#f8d7da', color: '#721c24', detailHtml: "", found: false };
+        }
+
+        let exp = new Date(userData[u].expire);
+        let now = new Date();
+        
+        exp.setHours(0, 0, 0, 0);
+        now.setHours(0, 0, 0, 0);
+        
+        let diffTime = exp - now;
+        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let message = "";
+        let bgColor = "";
+        let color = "";
+
+        if (diffDays > 30) {
+            message = `✅ ${userData[u].text} ${diffDays} วัน`;
+            bgColor = '#d4edda';
+            color = '#155724';
+        } else if (diffDays > 0) {
+            message = `⚠️ ${userData[u].text} ${diffDays} วัน (ใกล้หมดอายุ)`;
+            bgColor = '#fff3cd';
+            color = '#856404';
+        } else {
+            message = `❌ หมดอายุแล้ว (${Math.abs(diffDays)} วันที่ผ่านมา)`;
+            bgColor = '#f8d7da';
+            color = '#721c24';
+        }
+
+        let detailHtml = "";
+        
+        // 1. ส่วนรูปภาพ
+        if (userData[u].image) {
+            detailHtml += `<div class="user-image-container">
+                                <img src="${userData[u].image}" alt="รูปภาพผู้ใช้" class="user-image" onerror="this.style.display='none';" />
+                            </div>`;
+        }
+
+        // 2. ส่วนข้อมูลของในตัว (Items)
+        if (userData[u].items) {
+            const rawLines = userData[u].items.replace(/,/g, '\n').split('\n');
+            let itemLines = rawLines.map(l => l.trim()).filter(l => l.length > 0);
+            
+            if (itemLines.length > 0) {
+                detailHtml += `<table class="item-table">
+                                    <thead>
+                                        <tr>
+                                            <th>รายละเอียดไอดี</th>
+                                            <th>สถานะ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                itemLines.forEach(line => {
+                    const parts = line.split(':').map(p => p.trim());
+                    const item = parts[0] || 'N/A';
+                    const status = '🟢'; 
+                    
+                    detailHtml += `<tr><td>${item}</td><td>${status}</td></tr>`;
+                });
+                detailHtml += `</tbody></table>`;
+            }
+        }
+        
+        return { message, bgColor, color, detailHtml, found: true };
+    }
+
+    function search() {
+        let searchInput = document.getElementById('searchUser').value.trim();
+        let usernames = searchInput.split('\n')
+                                    .map(u => u.trim())
+                                    .filter(u => u.length > 0);
+        
+        let container = document.getElementById('searchResultsContainer');
+        container.innerHTML = ""; 
+
+        if (usernames.length === 0) {
+            return;
+        }
+        
+        let successfulFinds = 0;
+
+        usernames.forEach(u => {
+            let resultDiv = document.createElement('div');
+            resultDiv.className = 'search-result-item';
+            
+            const resultData = getSearchResult(u);
+            
+            if (resultData.found) {
+                successfulFinds++; 
+            }
+            
+            resultDiv.style.backgroundColor = resultData.bgColor;
+            resultDiv.style.color = resultData.color;
+            
+            resultDiv.innerHTML = `
+                <strong>${u}</strong>: ${resultData.message}
+                <div class="user-details">${resultData.detailHtml}</div>
+            `;
+            
+            container.appendChild(resultDiv);
+        });
+        
+        if (successfulFinds > 0) {
+            searchCount += successfulFinds;
+            updateSearchCounterDisplay();
+        }
+    }
+    
+    function submitRating(stars) {
+        const starKey = stars.toString(); 
+        
+        if (ratingCounts[starKey] !== undefined) {
+            ratingCounts[starKey]++;
+            save();
+            renderRatingChart();
+            alert(`ขอบคุณสำหรับการให้คะแนน ${stars} ดาว! คะแนนของคุณถูกบันทึกแล้ว`);
+        }
+    }
+
+    function renderRatingChart() {
+        const chartContainer = document.getElementById('ratingChartContainer');
+        if (!chartContainer) return;
+        
+        chartContainer.innerHTML = '';
+        
+        const totalVotes = Object.values(ratingCounts).reduce((sum, count) => sum + count, 0);
+        const starLabels = {1: '⭐', 2: '⭐⭐', 3: '⭐⭐⭐', 4: '⭐⭐⭐⭐', 5: '⭐⭐⭐⭐⭐'};
+        
+        const chartTitle = document.createElement('p');
+        chartTitle.className = 'chart-total-votes';
+        chartTitle.innerText = `รวมผู้ให้คะแนน: ${totalVotes} คน`;
+        chartContainer.appendChild(chartTitle);
+
+        for (let i = 5; i >= 1; i--) {
+            const starKey = i.toString();
+            const count = ratingCounts[starKey] || 0;
+            const percentage = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
+            
+            const barWrapper = document.createElement('div');
+            barWrapper.className = 'chart-bar-wrapper';
+            
+            barWrapper.innerHTML = `
+                <span class="star-label">${starLabels[i]}</span>
+                <div class="bar-background">
+                    <div class="chart-bar" style="width: ${percentage.toFixed(0)}%;"></div>
+                </div>
+                <span class="count-label">${count} คน (${percentage.toFixed(1)}%)</span>
+            `;
+            
+            chartContainer.appendChild(barWrapper);
+        }
+    }
+    
+    function generateStarInput() {
+        const inputArea = document.getElementById('starRatingInput');
+        if (!inputArea) return;
+        
+        let html = '';
+        for (let i = 5; i >= 1; i--) {
+            html += `<button class="star-button" onclick="submitRating(${i})">
+                         ${'⭐'.repeat(i)} (${i} ดาว)
+                     </button>`;
+        }
+        inputArea.innerHTML = html;
+    }
+    
+    function exportData() {
+        const fullData = {
+            users: users,
+            userData: userData,
+            searchCount: searchCount,
+            ratingCounts: ratingCounts
+        };
+        const dataStr = JSON.stringify(fullData, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `membership_data_backup_${new Date().toISOString().slice(0, 10)}.json`; 
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        URL.revokeObjectURL(url);
+        alert("✅ ดาวน์โหลดข้อมูลสำเร็จ! ไฟล์ JSON ถูกบันทึกในเครื่องแล้ว");
+    }
+
+    function importData() {
+        const fileInput = document.getElementById('importFile');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            return alert("กรุณาเลือกไฟล์ .json ที่ต้องการอัปโหลด");
+        }
+
+        if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+             return alert("รูปแบบไฟล์ไม่ถูกต้อง กรุณาเลือกไฟล์ .json เท่านั้น");
+        }
+
+        if (!confirm("⚠️ คำเตือน: การนำเข้าข้อมูลจะเขียนทับข้อมูลสมาชิก ข้อมูลการค้นหา และข้อมูลคะแนนรีวิวที่มีอยู่ในเครื่องนี้ คุณแน่ใจหรือไม่?")) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                if (importedData.users && importedData.userData) {
+                    users = importedData.users;
+                    userData = importedData.userData;
+                    searchCount = importedData.searchCount !== undefined ? parseInt(importedData.searchCount) : searchCount;
+                    ratingCounts = importedData.ratingCounts || ratingCounts;
+                    
+                    save(); 
+                    alert("✅ นำเข้าข้อมูลสำเร็จ! ข้อมูลถูกกู้คืนแล้ว หน้าเว็บจะโหลดใหม่");
+                    
+                    window.location.reload(); 
+                } else {
+                    alert("❌ รูปแบบข้อมูลในไฟล์ไม่ถูกต้อง ไม่พบ Users หรือ UserData ในไฟล์");
+                }
+            } catch (error) {
+                console.error("Import Error:", error);
+                alert("❌ เกิดข้อผิดพลาดในการอ่านไฟล์ กรุณาตรวจสอบว่าไฟล์เป็น JSON ที่ถูกต้อง");
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    window.onload = function() {
+        renderUserList();
+        updateSearchCounterDisplay();
+        generateStarInput();
+        renderRatingChart();
+    };
+</script>
+</body>
+</html>
