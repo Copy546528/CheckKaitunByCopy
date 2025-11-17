@@ -426,21 +426,21 @@
             <hr>
             <h2>📥 สำรองข้อมูล (Export)</h2>
             <p style="font-size: 0.9em; text-align: center; color: #6c757d; margin-bottom: 10px;">ใช้สำหรับสร้างไฟล์สำรองข้อมูลทั้งหมด</p>
+            
+            <input type="text" id="exportFileName" placeholder="ตั้งชื่อไฟล์สำรองข้อมูล (ไม่ใส่ก็ได้)" /> 
+            
             <button onclick="exportData()" id="exportButton">ดาวน์โหลดข้อมูล (Export)</button>
         </div>
     </div>
 
 <script>
-    // *************************************************
-    // *** ส่วนที่ถูกแก้ไข: เปลี่ยนรหัสแอดมิน ***
+    // ข้อมูลแอดมินใหม่
     const adminUser = "Copy"; 
     const adminPass = "123";
-    // *************************************************
 
     // กำหนดผู้ใช้เริ่มต้น หากไม่มีข้อมูลใน localStorage
     const DEFAULT_USERS = {
         "Havent": "123" // ผู้ใช้เริ่มต้น: Havent รหัส 123
-        // สามารถเพิ่มผู้ใช้เริ่มต้นอื่นๆ ได้ที่นี่
     };
 
     // ใช้ localStorage เพื่อเก็บข้อมูล
@@ -460,7 +460,7 @@
     }
 
     function showSection(section) {
-        const sections = ['search', 'rating', 'sync']; // Added 'sync'
+        const sections = ['search', 'rating', 'sync']; 
         
         // Hide all non-admin content sections
         sections.forEach(s => {
@@ -471,7 +471,6 @@
         });
         
         // Handle admin panel display state based on who is logged in
-        // ใช้รหัสแอดมินใหม่: Copy/123
         const isAdmin = document.getElementById('loginUser').value === adminUser && document.getElementById('loginPass').value === adminPass;
         const adminPanel = document.getElementById('adminPanel');
 
@@ -830,7 +829,7 @@
         inputArea.innerHTML = html;
     }
     
-    // EXPORT remains admin-only as it downloads ALL data
+    // *** ฟังก์ชัน Export ที่ถูกแก้ไขให้รองรับ Custom Filename ***
     function exportData() {
         const fullData = {
             users: users,
@@ -842,17 +841,33 @@
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         
+        // ดึงชื่อไฟล์จาก Input Field
+        const customName = document.getElementById('exportFileName').value.trim();
+        
+        // กำหนดชื่อไฟล์สุดท้าย
+        const defaultFilename = `membership_data_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        
+        let finalFilename = defaultFilename;
+        if (customName) {
+            // ลบอักขระพิเศษที่ไม่ควรมีในชื่อไฟล์ และเพิ่ม .json
+            finalFilename = customName.replace(/[^a-zA-Z0-9_\-]/g, '_');
+            if (!finalFilename.toLowerCase().endsWith('.json')) {
+                finalFilename += '.json';
+            }
+        }
+        
         const a = document.createElement('a');
         a.href = url;
-        a.download = `membership_data_backup_${new Date().toISOString().slice(0, 10)}.json`; 
+        a.download = finalFilename; 
         
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         
         URL.revokeObjectURL(url);
-        alert("✅ ดาวน์โหลดข้อมูลสำเร็จ! ไฟล์ JSON ถูกบันทึกในเครื่องแล้ว");
+        alert(`✅ ดาวน์โหลดข้อมูลสำเร็จ! ไฟล์ ${finalFilename} ถูกบันทึกในเครื่องแล้ว`);
     }
+    // ************************************************************
 
     // IMPORT is now accessible by everyone
     function importData() {
