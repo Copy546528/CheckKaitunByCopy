@@ -434,8 +434,17 @@
     const adminUser = "admin";
     const adminPass = "9O*UMAR%D57a";
 
+    // *** ส่วนที่ถูกแก้ไข: เพิ่ม Havent เป็นผู้ใช้เริ่มต้น ***
+    const DEFAULT_USERS = {
+        "Havent": "123" // ผู้ใช้เริ่มต้น: Havent รหัส 123
+        // สามารถเพิ่มผู้ใช้เริ่มต้นอื่นๆ ได้ที่นี่
+    };
+
     // ใช้ localStorage เพื่อเก็บข้อมูล
-    let users = JSON.parse(localStorage.getItem("users") || "{}");
+    // หาก localStorage ว่างเปล่า จะใช้ DEFAULT_USERS
+    let users = JSON.parse(localStorage.getItem("users") || JSON.stringify(DEFAULT_USERS));
+    // *************************************************
+
     let userData = JSON.parse(localStorage.getItem("userData") || "{}");
     let searchCount = parseInt(localStorage.getItem("searchCount") || "0");
     let ratingCounts = JSON.parse(localStorage.getItem("ratingCounts") || '{"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}');
